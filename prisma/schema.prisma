@@ -16,13 +16,14 @@ model User {
   projects   Project[]
 }
 
+// prisma/schema.prisma
 model Project {
   id        String   @id @default(cuid())
   name      String
   createdAt DateTime @default(now())
-  userId    String   // <- now this holds Clerk user ID like "user_abc123"
-
-  user      User     @relation(fields: [userId], references: [externalId]) // 🔥 FIXED HERE
+  userId    String
+  // Change this relation to reference externalId instead of id
+  user      User     @relation(fields: [userId], references: [externalId])
   services  Service[]
   incidents Incident[]
 }

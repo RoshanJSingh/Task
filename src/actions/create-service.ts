@@ -1,3 +1,4 @@
+// src/actions/create-service.ts
 'use server'
 
 import { auth } from "@clerk/nextjs/server"
@@ -11,23 +12,22 @@ export async function createService(formData: FormData) {
   const name = formData.get("name") as string
   const projectId = formData.get("projectId") as string
 
-  if (!name || !projectId) throw new Error("Missing fields")
+  if (!name || !projectId) throw new Error("Missing required fields")
 
-  // ✅ Get internal Prisma user
-  const user = await db.user.findUnique({
-    where: { externalId },
+  // Verify project exists AND belongs to this user (using externalId)
+  const project = await db.project.findFirst({
+    where: {
+      id: projectId,
+      userId: externalId // Match against Clerk's externalId
+    }
   })
-  if (!user) throw new Error("User not found")
 
-  // ✅ Check project ownership using internal user ID
-  const project = await db.project.findUnique({
-    where: { id: projectId },
-  })
-  if (!project || project.userId !== user.id) {
-    throw new Error("You do not have access to this project.")
+  if (!project) {
+    console.error(`Access denied - User ${externalId} tried to access project ${projectId}`)
+    throw new Error("You don't have permission to add services to this project")
   }
 
-  // ✅ Now you're safe to create the service
+  // Create the service
   await db.service.create({
     data: {
       name,

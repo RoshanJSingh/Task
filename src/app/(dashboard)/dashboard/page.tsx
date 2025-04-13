@@ -6,11 +6,8 @@ import { createService } from "../../../actions/create-service";
 import { createIncident } from "../../../actions/create-incident";
 import { updateServiceStatus } from "../../actions/update-service-status";
 import { getProjects } from "../../../data/get-projects";
-import { updateIncidentStatusFromForm } from '@/actions/update-incident-status';
-
-
-
-
+import { updateIncidentStatusFromForm } from "@/actions/update-incident-status";
+import { createUser } from "@/lib/createUser";
 
 
 export default async function DashboardPage() {
@@ -20,6 +17,9 @@ export default async function DashboardPage() {
   if (!userId) {
     redirect("/sign-in");
   }
+
+  // Sync user to database if not exists
+  await createUser();
 
   // Fetch projects data
   const projects = await getProjects();
@@ -47,7 +47,6 @@ export default async function DashboardPage() {
           Create Project
         </button>
       </form>
-
       {/* ✅ List of Projects */}
       <div className="pt-6 space-y-4">
         <h2 className="font-semibold text-lg">Your Projects</h2>
@@ -137,30 +136,38 @@ export default async function DashboardPage() {
                   ) : (
                     <ul className="pl-4 list-disc text-sm">
                       {project.incidents.map((incident) => (
-  <li key={incident.id} className="flex items-center gap-2">
-   <form action={updateIncidentStatusFromForm} className="flex items-center gap-2">
-
-      <input type="hidden" name="incidentId" value={incident.id} />
-      <strong>{incident.title}</strong> —{" "}
-      <select
-        name="status"
-        defaultValue={incident.status}
-        className="border rounded p-1 text-sm"
-      >
-        <option value="open">Open</option>
-        <option value="monitoring">Monitoring</option>
-        <option value="resolved">Resolved</option>
-      </select>
-      <button
-        type="submit"
-        className="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300 text-sm"
-      >
-        Update
-      </button>
-    </form>
-  </li>
-))}
-
+                        <li
+                          key={incident.id}
+                          className="flex items-center gap-2"
+                        >
+                          <form
+                            action={updateIncidentStatusFromForm}
+                            className="flex items-center gap-2"
+                          >
+                            <input
+                              type="hidden"
+                              name="incidentId"
+                              value={incident.id}
+                            />
+                            <strong>{incident.title}</strong> —{" "}
+                            <select
+                              name="status"
+                              defaultValue={incident.status}
+                              className="border rounded p-1 text-sm"
+                            >
+                              <option value="open">Open</option>
+                              <option value="monitoring">Monitoring</option>
+                              <option value="resolved">Resolved</option>
+                            </select>
+                            <button
+                              type="submit"
+                              className="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300 text-sm"
+                            >
+                              Update
+                            </button>
+                          </form>
+                        </li>
+                      ))}
                     </ul>
                   )}
 

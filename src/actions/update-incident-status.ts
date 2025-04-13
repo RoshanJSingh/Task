@@ -1,6 +1,8 @@
+// src/actions/update-incident-status.ts
 'use server';
 
 import { db } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
 
 export async function updateIncidentStatusFromForm(formData: FormData) {
   const incidentId = formData.get('incidentId')?.toString();
@@ -19,4 +21,6 @@ export async function updateIncidentStatusFromForm(formData: FormData) {
     where: { id: incidentId },
     data: { status },
   });
+
+  revalidatePath('/dashboard'); // Add this line
 }

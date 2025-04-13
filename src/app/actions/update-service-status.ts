@@ -1,3 +1,4 @@
+// src/actions/update-service-status.ts
 'use server';
 
 import { db } from '../../lib/db';
@@ -16,5 +17,5 @@ export async function updateServiceStatus(formData: FormData) {
     data: { status },
   });
 
-  revalidatePath('/dashboard');
+  revalidatePath('/dashboard'); // Add this line
 }

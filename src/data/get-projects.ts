@@ -1,19 +1,13 @@
-import { db } from "../lib/db";
 import { auth } from "@clerk/nextjs/server";
-
+import { db } from "../lib/db";
 export async function getProjects() {
   const { userId } = await auth();
   if (!userId) return [];
 
-  const user = await db.user.findUnique({
-    where: { externalId: userId },
-  });
-
-  if (!user) return [];
 
   const projects = await db.project.findMany({
     where: {
-      userId: user.id,
+      userId: userId, // Match the Clerk ID directly
     },
     include: {
       services: true,
